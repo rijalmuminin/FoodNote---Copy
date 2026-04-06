@@ -9,25 +9,18 @@ use App\Models\Kategori;
 
 class DashboardController extends Controller
 {
-    /**
-     * Menampilkan halaman utama dashboard admin.
-     */
     public function index()
     {
-        return view('admin.index        ', [
-            // Menghitung total user yang terdaftar
+        return view('admin.index', [
             'total_user'     => User::count(),
-            
-            // Menghitung total semua resep
             'total_resep'    => Resep::count(),
-            
-            // Menghitung resep yang statusnya 'pending' (Menunggu Persetujuan)
             'resep_pending'  => Resep::where('status', 'pending')->count(),
             
-            // Menghitung total kategori yang tersedia
-            'total_kategori' => Kategori::count(),  
+            // Tambahan data statistik baru
+            'resep_approved' => Resep::where('status', 'approved')->count(),
+            'resep_rejected' => Resep::where('status', 'rejected')->count(),
             
-            // Mengambil 5 resep terbaru untuk ditampilkan di tabel dashboard
+            'total_kategori' => Kategori::count(),  
             'resep_terbaru'  => Resep::with('user')->latest()->take(5)->get(),
         ]);
     }

@@ -7,7 +7,7 @@
     </div>
 
     <div class="row mb-3">
-        {{-- Total Resep --}}
+        {{-- Total Resep & Rincian --}}
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card h-100 border-left-primary shadow-sm">
                 <div class="card-body">
@@ -15,9 +15,14 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-uppercase mb-1">Total Koleksi Resep</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_resep }}</div>
-                            <div class="mt-2 mb-0 text-muted text-xs">
-                                <span class="text-primary mr-2"><i class="fas fa-utensils"></i></span>
-                                <span>Resep terdaftar</span>
+                            <div class="mt-2 mb-0 text-xs">
+                                <span class="text-success mr-2">
+                                    <i class="fas fa-check-circle"></i> {{ $resep_approved }} Disetujui
+                                </span>
+                                <br>
+                                <span class="text-danger mr-2">
+                                    <i class="fas fa-ban"></i> {{ $resep_rejected }} Ditolak
+                                </span>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -28,17 +33,17 @@
             </div>
         </div>
 
-        {{-- Menunggu Persetujuan (BARU) --}}
+        {{-- Menunggu Persetujuan --}}
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card h-100 border-left-warning shadow-sm">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-uppercase mb-1">Butuh Persetujuan</div>
-                            <div class="h5 mb-0 font-weight-bold text-warning">{{ $resep_pending ?? 0 }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-warning">{{ $resep_pending }}</div>
                             <div class="mt-2 mb-0 text-muted text-xs">
                                 <span class="text-warning mr-2"><i class="fas fa-clock"></i></span>
-                                <span>Resep status pending</span>
+                                <span>Menunggu moderasi</span>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -59,7 +64,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $total_user }}</div>
                             <div class="mt-2 mb-0 text-muted text-xs">
                                 <span class="text-success mr-2"><i class="fas fa-user-check"></i></span>
-                                <span>User aktif</span>
+                                <span>User terdaftar</span>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -92,6 +97,7 @@
         </div>
     </div>
 
+    {{-- Tabel Resep Terbaru --}}
     <div class="row">
         <div class="col-lg-12">
             <div class="card mb-4 shadow-sm">
@@ -143,4 +149,4 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection 

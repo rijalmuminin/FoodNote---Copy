@@ -1,300 +1,551 @@
 @extends('layouts.backend')
 
 @section('content')
-<div class="container-fluid px-3 px-md-4">
 
-    {{-- HEADER --}}
-    <div class="header-box mb-4 d-flex justify-content-between align-items-center">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=Lora:wght@500&display=swap" rel="stylesheet">
+
+<style>
+    .page-root * { box-sizing: border-box; }
+    .page-root {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: #1c1c1c;
+        padding: 2rem 2.5rem;
+        background: #f7f6f3;
+        min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.75rem;
+    }
+    .page-header h1 {
+        font-family: 'Lora', serif;
+        font-size: 22px;
+        font-weight: 500;
+        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+        color: #1c1c1c;
+    }
+    .page-header p {
+        font-size: 13px;
+        color: #999;
+        margin: 0;
+    }
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #fff;
+        background: #1c1c1c;
+        border: none;
+        border-radius: 10px;
+        padding: 9px 18px;
+        text-decoration: none;
+        transition: background 0.15s, transform 0.15s;
+        white-space: nowrap;
+    }
+    .btn-add:hover { background: #333; color: #fff; text-decoration: none; transform: translateY(-1px); }
+
+    /* ── Alert ── */
+    .alert-ok {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #EBF5EC;
+        color: #2E8B41;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        border: 1px solid #c8e6cb;
+    }
+
+    /* ── Filter Box ── */
+    .filter-box {
+        background: #fff;
+        border: 1px solid #eae9e5;
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.75rem;
+    }
+    .filter-label {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #bbb;
+        display: block;
+        margin-bottom: 6px;
+    }
+    .filter-input {
+        width: 100%;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        color: #1c1c1c;
+        background: #faf9f7;
+        border: 1px solid #eae9e5;
+        border-radius: 8px;
+        padding: 8px 12px;
+        outline: none;
+        transition: border-color 0.15s;
+        -webkit-appearance: none;
+    }
+    .filter-input:focus { border-color: #aaa; background: #fff; }
+    .btn-filter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #fff;
+        background: #1c1c1c;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: background 0.15s;
+        white-space: nowrap;
+    }
+    .btn-filter:hover { background: #333; }
+    .btn-reset {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #999;
+        background: #f0ede8;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+    }
+    .btn-reset:hover { background: #e5e2dc; color: #555; text-decoration: none; }
+
+    /* ── Cards Grid ── */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 2rem;
+    }
+
+    /* ── Recipe Card ── */
+    .recipe-card {
+        background: #fff;
+        border: 1px solid #eae9e5;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .recipe-card:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,0.07);
+        transform: translateY(-2px);
+    }
+
+    /* ── Image ── */
+    .card-img-wrap {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        background: #f0ede8;
+    }
+    .card-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.4s ease;
+    }
+    .recipe-card:hover .card-img-wrap img { transform: scale(1.04); }
+    .no-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+    }
+    .no-img svg { width: 36px; height: 36px; }
+
+    /* Status badge on image */
+    .status-pill {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 99px;
+        backdrop-filter: blur(4px);
+    }
+    .status-pill.pending  { background: rgba(251,242,227,0.92); color: #9A6C18; }
+    .status-pill.approved { background: rgba(235,245,236,0.92); color: #256B33; }
+    .status-pill.rejected { background: rgba(252,234,234,0.92); color: #A03030; }
+
+    /* Kategori badge */
+    .kat-pill {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 10px;
+        font-weight: 500;
+        color: #fff;
+        background: rgba(28,28,28,0.55);
+        backdrop-filter: blur(4px);
+        padding: 3px 9px;
+        border-radius: 99px;
+    }
+
+    /* ── Card Body ── */
+    .card-body-inner {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .card-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1c1c1c;
+        margin: 0 0 6px;
+        line-height: 1.4;
+    }
+    .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+    .card-meta span { display: flex; align-items: center; gap: 4px; }
+    .card-rating {
+        font-size: 12px;
+        font-weight: 500;
+        color: #B07A20;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        margin-bottom: 10px;
+    }
+    .rating-dot { color: #F5C754; font-size: 13px; }
+
+    /* Time badge */
+    .time-tag {
+        display: inline-block;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+    .time-fast { background: #E4F4F1; color: #1F8A76; }
+    .time-mid  { background: #FBF2E3; color: #B07A20; }
+    .time-slow { background: #FCEAEA; color: #C04040; }
+
+    /* ── Actions ── */
+    .card-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 6px;
+    }
+    .card-actions form { display: contents; }
+
+    .act-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 500;
+        border: none;
+        border-radius: 8px;
+        padding: 7px 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s, transform 0.1s;
+        white-space: nowrap;
+    }
+    .act-btn:active { transform: scale(0.97); }
+    .act-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .act-view   { background: #EBF2FC; color: #2E72C2; flex-shrink: 0; }
+    .act-view:hover { background: #d6e7f8; color: #2E72C2; text-decoration: none; }
+
+    .act-approve { background: #EBF5EC; color: #256B33; flex: 1; }
+    .act-approve:hover { background: #d5edda; color: #256B33; text-decoration: none; }
+
+    .act-reject  { background: #FCEAEA; color: #A03030; flex: 1; }
+    .act-reject:hover { background: #f8d5d5; color: #A03030; text-decoration: none; }
+
+    .act-edit    { background: #FBF2E3; color: #9A6C18; flex: 1; }
+    .act-edit:hover { background: #f5e5c8; color: #9A6C18; text-decoration: none; }
+
+    .act-delete  { background: #FCEAEA; color: #A03030; flex-shrink: 0; }
+    .act-delete:hover { background: #f8d5d5; color: #A03030; }
+
+    /* ── Empty State ── */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #bbb;
+    }
+    .empty-state svg { width: 56px; height: 56px; margin-bottom: 1rem; opacity: 0.35; }
+    .empty-state h5 { font-size: 16px; color: #888; margin-bottom: 6px; }
+    .empty-state p  { font-size: 13px; color: #bbb; margin-bottom: 1rem; }
+    .btn-reset-empty {
+        font-size: 13px;
+        font-weight: 500;
+        color: #2E72C2;
+        background: #EBF2FC;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-reset-empty:hover { background: #d6e7f8; color: #2E72C2; text-decoration: none; }
+
+    /* ── Pagination ── */
+    .pagination-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    .pagination-wrap .pagination .page-link {
+        font-size: 13px;
+        border-radius: 8px !important;
+        border: 1px solid #eae9e5;
+        color: #555;
+        padding: 6px 12px;
+        margin: 0 2px;
+    }
+    .pagination-wrap .pagination .page-item.active .page-link {
+        background: #1c1c1c;
+        border-color: #1c1c1c;
+        color: #fff;
+    }
+
+    @media (max-width: 1100px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 800px)  { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px)  {
+        .page-root { padding: 1.25rem 1rem; }
+        .cards-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="page-root">
+
+    {{-- Header --}}
+    <div class="page-header">
         <div>
-            <h4 class="fw-bold text-dark mb-1">Daftar Resep</h4>
-            <p class="text-muted small mb-0">Kelola semua resep kuliner dengan mudah</p>
+            <h1>Daftar Resep</h1>
+            <p>Kelola semua resep kuliner dengan mudah</p>
         </div>
-
-        <a href="{{ route('admin.resep.create') }}" class="btn-add text-decoration-none">
-            <i class="fas fa-plus me-1"></i> Tambah Resep
+        <a href="{{ route('admin.resep.create') }}" class="btn-add">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Resep
         </a>
     </div>
 
-    {{-- ALERT --}}
+    {{-- Alert --}}
     @if(session('success'))
-    <div class="alert-box mb-4">
-        <i class="fas fa-check-circle me-2"></i>
+    <div class="alert-ok">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
         {{ session('success') }}
     </div>
     @endif
 
-    {{-- FILTER & SORT BOX --}}
-    <div class="filter-box mb-4">
-        <form method="GET" action="{{ route('admin.resep.index') }}" class="row g-3 align-items-end">
+    {{-- Filter --}}
+    <div class="filter-box">
+        <form method="GET" action="{{ route('admin.resep.index') }}">
+            <div class="row g-3 align-items-end">
 
-            <div class="col-xl-3 col-lg-3 col-md-6">
-                <label class="label">CARI JUDUL</label>
-                <input type="text" name="search" class="input"
-                    placeholder="Contoh: Nasi Goreng..." value="{{ request('search') }}">
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-6">
-                <label class="label">KATEGORI</label>
-                <select name="kategori" class="input">
-                    <option value="">Semua Kategori</option>
-                    @foreach($kategoris as $kat)
-                        <option value="{{ $kat->nama_kategori }}"
-                        {{ request('kategori') == $kat->nama_kategori ? 'selected' : '' }}>
-                        {{ $kat->nama_kategori }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-6">
-                <label class="label">DURASI</label>
-                <select name="waktu" class="input">
-                    <option value="">Semua Waktu</option>
-                    <option value="kilat" {{ request('waktu') == 'kilat' ? 'selected' : '' }}>⚡ ≤ 15m (Kilat)</option>
-                    <option value="sedang" {{ request('waktu') == 'sedang' ? 'selected' : '' }}>⏰ 16-45m (Sedang)</option>
-                    <option value="lama" {{ request('waktu') == 'lama' ? 'selected' : '' }}>🍲 > 45m (Lama)</option>
-                </select>
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-6">
-                <label class="label">URUTKAN</label>
-                <select name="sort" class="input">
-                    <option value="terbaru" {{ request('sort') == 'terbaru' ? 'selected' : '' }}>🆕 Terbaru</option>
-                    <option value="terlama" {{ request('sort') == 'terlama' ? 'selected' : '' }}>⏳ Terlama</option>
-                    <option value="rating_tertinggi" {{ request('sort') == 'rating_tertinggi' ? 'selected' : '' }}>⭐ Rating Tertinggi</option>
-                    <option value="rating_terendah" {{ request('sort') == 'rating_terendah' ? 'selected' : '' }}>📉 Rating Terendah</option>
-                    <option value="judul_az" {{ request('sort') == 'judul_az' ? 'selected' : '' }}>🔤 Judul A-Z</option>
-                </select>
-            </div>
-
-            <div class="col-xl-3 col-lg-3 col-md-12">
-                <label class="label">RATING (MIN - MAX)</label>
-                <div class="d-flex gap-2">
-                    <input type="number" step="0.1" name="rating_min" class="input text-center"
-                        placeholder="Min" value="{{ request('rating_min') }}">
-                    
-                    <button type="submit" class="btn-filter px-3">
-                        <i class="fas fa-filter"></i>
-                    </button>
-
-                    <a href="{{ route('admin.resep.index') }}" class="btn-reset text-decoration-none">
-                        <i class="fas fa-sync-alt"></i>
-                    </a>
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <label class="filter-label">Cari Judul</label>
+                    <input type="text" name="search" class="filter-input"
+                        placeholder="Contoh: Nasi Goreng..." value="{{ request('search') }}">
                 </div>
-            </div>
 
+                <div class="col-xl-2 col-lg-2 col-md-6">
+                    <label class="filter-label">Kategori</label>
+                    <select name="kategori" class="filter-input">
+                        <option value="">Semua</option>
+                        @foreach($kategoris as $kat)
+                            <option value="{{ $kat->nama_kategori }}"
+                                {{ request('kategori') == $kat->nama_kategori ? 'selected' : '' }}>
+                                {{ $kat->nama_kategori }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-xl-2 col-lg-2 col-md-6">
+                    <label class="filter-label">Durasi</label>
+                    <select name="waktu" class="filter-input">
+                        <option value="">Semua</option>
+                        <option value="kilat"  {{ request('waktu') == 'kilat'  ? 'selected' : '' }}>≤ 15 menit</option>
+                        <option value="sedang" {{ request('waktu') == 'sedang' ? 'selected' : '' }}>16–45 menit</option>
+                        <option value="lama"   {{ request('waktu') == 'lama'   ? 'selected' : '' }}>> 45 menit</option>
+                    </select>
+                </div>
+
+                <div class="col-xl-2 col-lg-2 col-md-6">
+                    <label class="filter-label">Urutkan</label>
+                    <select name="sort" class="filter-input">
+                        <option value="terbaru"         {{ request('sort','terbaru') == 'terbaru'         ? 'selected' : '' }}>Terbaru</option>
+                        <option value="terlama"         {{ request('sort') == 'terlama'                   ? 'selected' : '' }}>Terlama</option>
+                        <option value="rating_tertinggi"{{ request('sort') == 'rating_tertinggi'          ? 'selected' : '' }}>Rating Tertinggi</option>
+                        <option value="rating_terendah" {{ request('sort') == 'rating_terendah'           ? 'selected' : '' }}>Rating Terendah</option>
+                        <option value="judul_az"        {{ request('sort') == 'judul_az'                  ? 'selected' : '' }}>Judul A–Z</option>
+                    </select>
+                </div>
+
+                <div class="col-xl-3 col-lg-3 col-md-12">
+                    <label class="filter-label">Rating Minimum</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" step="0.1" min="0" max="5" name="rating_min" class="filter-input"
+                            style="width:90px;" placeholder="0.0" value="{{ request('rating_min') }}">
+                        <button type="submit" class="btn-filter">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            Filter
+                        </button>
+                        <a href="{{ route('admin.resep.index') }}" class="btn-reset" title="Reset">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
         </form>
     </div>
 
-    {{-- LIST RESEP --}}
+    {{-- Cards --}}
     @if($resep->count())
-    <div class="row g-4">
+    <div class="cards-grid">
         @foreach($resep as $item)
-        <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="card-resep shadow-sm border-0">
-                
-                {{-- IMAGE --}}
-                <div class="image-box">
-                    @if($item->foto)
-                        <img src="{{ asset('storage/'.$item->foto) }}" alt="{{ $item->judul }}">
-                    @else
-                        <div class="no-img"><i class="fas fa-utensils fa-2x text-muted opacity-50"></i></div>
-                    @endif
+        @php $w = $item->waktu_masak ?? 0; @endphp
+        <div class="recipe-card">
 
-                    <div class="overlay"></div>
-
-                    {{-- BADGE STATUS (BARU) --}}
-                    <div class="status-badge status-{{ $item->status }}">
-                        {{ $item->status }}
+            {{-- Image --}}
+            <div class="card-img-wrap">
+                @if($item->foto)
+                    <img src="{{ asset('storage/'.$item->foto) }}" alt="{{ $item->judul }}">
+                @else
+                    <div class="no-img">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            <path d="M3 2h18l-2 13H5L3 2z"/><path d="M3 2 1 0"/><circle cx="9" cy="20" r="1"/><circle cx="20" cy="20" r="1"/>
+                        </svg>
                     </div>
+                @endif
 
-                    {{-- BADGE KATEGORI --}}
-                    <div class="kategori">
-                        @foreach($item->kategori->take(1) as $k)
-                            <span>{{ $k->nama_kategori }}</span>
-                        @endforeach
-                    </div>
+                <span class="status-pill {{ $item->status }}">{{ $item->status }}</span>
+
+                @if($item->kategori->count())
+                <span class="kat-pill">{{ $item->kategori->first()->nama_kategori }}</span>
+                @endif
+            </div>
+
+            {{-- Body --}}
+            <div class="card-body-inner">
+                <p class="card-title">{{ Str::limit($item->judul, 42) }}</p>
+
+                <div class="card-meta">
+                    <span>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        {{ $item->user->name ?? 'Admin' }}
+                    </span>
                 </div>
 
-                {{-- CARD BODY --}}
-                <div class="body d-flex flex-column p-3">
-                    <div class="content mb-3">
-                        <h6 class="title text-dark fw-bold mb-1">{{ Str::limit($item->judul, 40) }}</h6>
-                        
-                        <div class="rating mb-2">
-                            <span class="text-warning">⭐</span> 
-                            <span class="fw-bold">{{ number_format($item->avg_rating ?? 0, 1) }}</span>
-                            <small class="text-muted">({{ $item->rating_count ?? 0 }})</small>
+                <div class="card-rating">
+                    <span class="rating-dot">★</span>
+                    {{ number_format($item->avg_rating ?? 0, 1) }}
+                    <span style="color:#ccc;font-weight:400;">({{ $item->rating_count ?? 0 }})</span>
+                    @if(($item->avg_rating ?? 0) >= 4.5)
+                        <span style="font-size:10px;background:#FBF2E3;color:#B07A20;padding:2px 7px;border-radius:99px;margin-left:4px;font-weight:500;">Top</span>
+                    @endif
+                </div>
 
-                            @if(($item->avg_rating ?? 0) >= 4.5)
-                                <span class="top-badge ms-1">🔥 Top</span>
-                            @endif
-                        </div>
+                <div>
+                    @if($w <= 15)
+                        <span class="time-tag time-fast">≤ 15 menit</span>
+                    @elseif($w <= 45)
+                        <span class="time-tag time-mid">16–45 menit</span>
+                    @else
+                        <span class="time-tag time-slow">> 45 menit</span>
+                    @endif
+                </div>
 
-                        <div class="author small text-muted mb-2">
-                            <i class="far fa-user me-1"></i> {{ $item->user->name ?? 'Admin' }}
-                        </div>
+                {{-- Actions --}}
+                <div class="card-actions">
+                    <a href="{{ route('admin.resep.show', $item->id) }}" class="act-btn act-view" title="Lihat Detail">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </a>
 
-                        @php $w = $item->waktu_masak ?? 0; @endphp
-                        <div class="time-badge">
-                            @if($w <= 15)
-                                <span class="badge-fast">⚡ ≤ 15 menit</span>
-                            @elseif($w <= 45)
-                                <span class="badge-mid">⏰ 16 - 45 menit</span>
-                            @else
-                                <span class="badge-slow">🍲 > 45 menit</span>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- ACTIONS (MODIFIKASI TERIMA/TOLAK) --}}
-                    <div class="actions mt-auto d-flex gap-2">
-                        <a href="{{ route('admin.resep.show', $item->id) }}" class="btn-action view" title="Detail">
-                            <i class="fas fa-eye"></i>
+                    @if($item->status == 'pending')
+                        <form action="{{ route('admin.resep.approve', $item->id) }}" method="POST" style="flex:1;">
+                            @csrf
+                            <button type="submit" class="act-btn act-approve w-100">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                Setuju
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.resep.reject', $item->id) }}" method="POST" style="flex:1;">
+                            @csrf
+                            <button type="submit" class="act-btn act-reject w-100" onclick="return confirm('Tolak resep ini?')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Tolak
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('admin.resep.edit', $item->id) }}" class="act-btn act-edit" style="flex:1;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Edit
                         </a>
-
-                        @if($item->status == 'pending')
-                            {{-- Form Terima --}}
-                            <form action="{{ route('admin.resep.approve', $item->id) }}" method="POST" class="flex-grow-1">
-                                @csrf
-                                <button type="submit" class="btn-action approve w-100" title="Terima Resep">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </form>
-
-                            {{-- Form Tolak --}}
-                            <form action="{{ route('admin.resep.reject', $item->id) }}" method="POST" class="flex-grow-1">
-                                @csrf
-                                <button type="submit" class="btn-action reject w-100" title="Tolak Resep">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
-                        @else
-                            {{-- Tombol Edit & Hapus muncul jika sudah bukan pending --}}
-                            <a href="{{ route('admin.resep.edit', $item->id) }}" class="btn-action edit" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-
-                            <form action="{{ route('admin.resep.destroy', $item->id) }}" method="POST" class="flex-grow-1">
-                                @csrf @method('DELETE')
-                                <button class="btn-action delete w-100" onclick="return confirm('Hapus resep ini?')" title="Hapus">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        @endif
-                    </div>
+                        <form action="{{ route('admin.resep.destroy', $item->id) }}" method="POST">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="act-btn act-delete" onclick="return confirm('Hapus resep ini?')" title="Hapus">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
         @endforeach
     </div>
 
-    {{-- PAGINATION --}}
-    <div class="mt-5 d-flex justify-content-center">
+    <div class="pagination-wrap">
         {{ $resep->links('pagination::bootstrap-5') }}
     </div>
 
     @else
-    <div class="empty-state text-center py-5">
-        <i class="fas fa-search fa-4x text-muted mb-3 opacity-25"></i>
-        <h5 class="text-muted">Resep tidak ditemukan</h5>
-        <p class="small text-muted">Coba ganti kata kunci atau reset filter.</p>
-        <a href="{{ route('admin.resep.index') }}" class="btn btn-sm btn-primary">Reset Filter</a>
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <h5>Resep tidak ditemukan</h5>
+        <p>Coba ganti kata kunci atau reset filter.</p>
+        <a href="{{ route('admin.resep.index') }}" class="btn-reset-empty">Reset Filter</a>
     </div>
     @endif
 
 </div>
 
-<style>
-/* STYLE ASLI KAMU */
-.btn-add {
-    background: linear-gradient(135deg,#6366f1,#4f46e5);
-    color:white !important;
-    padding:10px 20px;
-    border-radius:12px;
-    font-weight:600;
-    transition: 0.3s;
-}
-.btn-add:hover { opacity: 0.9; transform: scale(1.02); }
-
-.alert-box {
-    background:#dcfce7;
-    color: #15803d;
-    padding:14px;
-    border-radius:12px;
-    font-weight: 500;
-}
-
-.filter-box {
-    background:#fff;
-    padding:24px;
-    border-radius:18px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.03);
-}
-
-.label { font-size:11px; font-weight:700; color:#4b5563; margin-bottom:6px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-.input { 
-    width:100%; padding:10px 12px; border-radius:10px; border:1px solid #e5e7eb; 
-    font-size: 13px; transition: 0.2s; background: #f9fafb;
-}
-.input:focus { border-color: #6366f1; background: #fff; outline: none; }
-
-.btn-filter { background:#6366f1; color:white; border:none; border-radius:10px; height: 42px; width: 42px; }
-.btn-reset { background:#f3f4f6; color:#4b5563; border-radius:10px; height: 42px; width: 42px; display:flex; align-items:center; justify-content:center; }
-
-.card-resep { background:white; border-radius:20px; overflow:hidden; height:100%; transition:0.3s; position: relative; }
-.card-resep:hover { transform:translateY(-8px); box-shadow:0 20px 40px rgba(0,0,0,0.08) !important; }
-
-.image-box { position:relative; height:190px; }
-.image-box img { width:100%; height:100%; object-fit:cover; }
-.no-img { height:100%; background:#f3f4f6; display:flex; align-items:center; justify-content:center; }
-.overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.4), transparent); }
-
-.kategori { position:absolute; bottom:12px; left:12px; }
-.kategori span { background:rgba(255,255,255,0.95); padding:4px 12px; border-radius:8px; font-size:10px; font-weight:700; color:#374151; }
-
-/* STYLE STATUS BADGE (BARU) */
-.status-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    z-index: 2;
-}
-.status-pending { background: #fef3c7; color: #d97706; }
-.status-approved { background: #dcfce7; color: #16a34a; }
-.status-rejected { background: #fee2e2; color: #dc2626; }
-
-.title { font-size: 15px; line-height: 1.4; height: 42px; overflow: hidden; }
-.top-badge { background:#22c55e; color:white; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:bold; }
-
-.badge-fast { background:#dcfce7; color:#16a34a; padding:4px 10px; border-radius:8px; font-size:11px; font-weight:600; }
-.badge-mid { background:#fef3c7; color:#d97706; padding:4px 10px; border-radius:8px; font-size:11px; font-weight:600; }
-.badge-slow { background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:8px; font-size:11px; font-weight:600; }
-
-.btn-action { 
-    height:38px; width:38px; border-radius:10px; display:flex; align-items:center; 
-    justify-content:center; border:none; transition: 0.2s; text-decoration: none;
-}
-.view { background:#eef2ff; color:#4f46e5; }
-.edit { background:#fff7ed; color:#ea580c; }
-.delete { background:#fef2f2; color:#dc2626; }
-
-/* STYLE TOMBOL TERIMA/TOLAK (BARU) */
-.approve { background: #dcfce7; color: #16a34a; }
-.approve:hover { background: #16a34a; color: white; }
-.reject { background: #fee2e2; color: #dc2626; }
-.reject:hover { background: #dc2626; color: white; }
-
-.view:hover { background:#4f46e5; color:white; }
-.edit:hover { background:#ea580c; color:white; }
-.delete:hover { background:#dc2626; color:white; }
-
-.empty-state { opacity: 0.6; }
-</style>
 @endsection
