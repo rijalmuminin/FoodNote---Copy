@@ -623,20 +623,6 @@ a    { text-decoration: none; }
         "Tidak ada yang lebih baik daripada pulang ke rumah dan makan makanan enak bersama keluarga."
         <cite>— FoodNote Community</cite>
     </blockquote>
-
-    <div class="fn-nl-form-wrap">
-        <h4>Berlangganan Newsletter</h4>
-        <p>Update resep terbaru langsung ke email kamu setiap minggu.</p>
-        <form action="#" method="post" class="fn-nl-form">
-            @csrf
-            <input type="email" name="email" placeholder="Email Anda">
-            <button type="submit">Subscribe Sekarang</button>
-        </form>
-    </div>
-
-    <div class="fn-nl-img">
-        <img src="{{ asset('assets/frontend/img/bg-img/add.png') }}" alt="">
-    </div>
 </section>
 
 @endsection
