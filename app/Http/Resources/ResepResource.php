@@ -21,9 +21,10 @@ class ResepResource extends JsonResource
             'waktu_masak'   => $this->waktu_masak . ' Menit',
             'foto'          => $this->foto ? asset('storage/' . $this->foto) : asset('assets/img/default-resep.png'),
             
-            // Rating & Total Ulasan
-            'rating'        => round($this->interaksi()->avg('rating') ?? 0, 1),
-            'total_ulasan'  => $this->interaksi()->count(),
+            // OPTIMASI: Mengambil hasil dari withAvg dan withCount di Controller
+            // Kalau avg_rating tidak ada (misal di show), dia baru hitung manual
+            'rating'        => round($this->avg_rating ?? $this->interaksi()->avg('rating') ?? 0, 1),
+            'total_ulasan'  => $this->rating_count ?? $this->interaksi()->count(),
             
             'status'        => $this->status,
             'tanggal'       => $this->tanggal_publish,
@@ -33,37 +34,45 @@ class ResepResource extends JsonResource
             ],
 
             // Data Bahan
-            'bahan'   => $this->bahan->map(function ($item) {
-                return [
-                    'nama_bahan' => $item->nama_bahan,
-                    'kuantitas'  => $item->kuantitas,
-                ];
+            'bahan'   => $this->whenLoaded('bahan', function () {
+                return $this->bahan->map(function ($item) {
+                    return [
+                        'nama_bahan' => $item->nama_bahan,
+                        'kuantitas'  => $item->kuantitas,
+                    ];
+                });
             }),
 
             // Data Langkah (Cara Membuat)
-            'langkah' => $this->langkah->map(function ($item) {
-                return [
-                    // Sesuaikan dengan nama kolom di database kamu: 'deskripsi_langkah'
-                    'step' => $item->deskripsi_langkah, 
-                ];
+            'langkah' => $this->whenLoaded('langkah', function () {
+                return $this->langkah->map(function ($item) {
+                    return [
+                        'step' => $item->deskripsi_langkah, 
+                    ];
+                });
             }),
 
             // Data Ulasan (Interaksi)
-            'ulasan'  => $this->interaksi->map(function ($item) {
-                return [
-                    'user' => [
-                        'nama' => $item->user->name ?? 'User',
-                    ],
-                    'rating'   => $item->rating,
-                    'komentar' => $item->komentar,
-                ];
+            'ulasan'  => $this->whenLoaded('interaksi', function () {
+                return $this->interaksi->whereNotNull('komentar')->map(function ($item) {
+                    return [
+                        'user' => [
+                            'nama' => $item->user->name ?? 'User',
+                        ],
+                        'rating'   => $item->rating,
+                        'komentar' => $item->komentar,
+                    ];
+                });
             }),
-            // kategori
-            'kategori' => $this->kategori->map(function ($kat) {
-            return [
-                'nama' => $kat->nama_kategori,
-            ];
-        }),
+
+            // Kategori
+            'kategori' => $this->whenLoaded('kategori', function () {
+                return $this->kategori->map(function ($kat) {
+                    return [
+                        'nama' => $kat->nama_kategori,
+                    ];
+                });
+            }),
         ];
     }
 }

@@ -11,3 +11,5 @@ Route::get('/resep/{id}', [ResepController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/resep-saya', [ResepController::class, 'resepSaya']);
 });
+Route::middleware('auth:sanctum')->get('/resep-tersimpan',
+ [ResepController::class, 'resepTersimpan']);
